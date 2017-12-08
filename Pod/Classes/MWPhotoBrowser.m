@@ -331,8 +331,8 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 
 - (void)viewWillAppear:(BOOL)animated {
     
-	// Super
-	[super viewWillAppear:animated];
+    // Super
+    [super viewWillAppear:animated];
     
     // Status bar
     if (!_viewHasAppearedInitially) {
@@ -355,7 +355,7 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     [self setNavBarAppearance:animated];
     
     // Update UI
-	[self hideControlsAfterDelay];
+    [self hideControlsAfterDelay];
     
     // Initial appearance
     if (!_viewHasAppearedInitially) {
@@ -371,8 +371,10 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
     }
     
     // Layout
+    if (@available(iOS 11.0, *)) {
+        [self layoutVisiblePages];
+    }
     [self.view setNeedsLayout];
-
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -485,9 +487,13 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
-    [self layoutVisiblePages];
+    
+    if (@available(iOS 11.0, *)) {
+        // do nothing
+    } else {
+        [self layoutVisiblePages];
+    }
 }
-
 - (void)layoutVisiblePages {
     
 	// Flag
@@ -1068,11 +1074,19 @@ static void * MWVideoPlayerObservation = &MWVideoPlayerObservation;
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
 	// Hide controls when dragging begins
 	[self setControlsHidden:YES animated:YES permanent:NO];
+    
+    if ([_delegate respondsToSelector:@selector(photoBrowserWillBeginDragging:)]) {
+        [_delegate photoBrowserWillBeginDragging:self];
+    }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
 	// Update nav when page changes
 	[self updateNavigation];
+    
+    if ([_delegate respondsToSelector:@selector(photoBrowserDidEndDecelerating:)]) {
+        [_delegate photoBrowserDidEndDecelerating:self];
+    }
 }
 
 #pragma mark - Navigation
